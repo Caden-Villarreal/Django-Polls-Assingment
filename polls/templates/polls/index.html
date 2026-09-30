@@ -1,3 +1,14 @@
+{% load static %}
+
+<link rel="stylesheet" href="{% static 'polls/style.css' %}">
+
+<p>{{ welcome_message }}</p>
+<p>You have visited the Polls page {{ visit_count }} times.</p>
+
+{% if last_poll %}
+    <p>Last poll viewed: {{ last_poll.question_text }}</p>
+{% endif %}
+
 {% if latest_question_list %}
     <ul>
     {% for question in latest_question_list %}
