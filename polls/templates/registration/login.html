@@ -1,0 +1,25 @@
+
+{% extends "admin/base_site.html" %}
+
+{% block content %}
+<h1>Log in</h1>
+
+{% if form.errors %}
+    <p>Your username or password was incorrect. Please try again.</p>
+{% endif %}
+
+{% if next %}
+    {% if user.is_authenticated %}
+        <p>Your account does not have access to that page.</p>
+    {% else %}
+        <p>Please log in to continue.</p>
+    {% endif %}
+{% endif %}
+
+<form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <input type="hidden" name="next" value="{{ next }}">
+    <button type="submit">Log in</button>
+</form>
+{% endblock %}

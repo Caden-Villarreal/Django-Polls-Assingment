@@ -1,9 +1,11 @@
 from django.db.models import F
-from django.http import HttpResponse, HttpResponseRedirect
+from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404, render
 from django.urls import reverse
 from django.utils import timezone
+from django.contrib.auth.decorators import login_required
 
+from .forms import CommentForm
 from .models import Choice, Question
 
 
@@ -54,12 +56,30 @@ def detail(request, question_id):
     request.session["last_poll"] = question.id
     request.session.save()
 
-    return render(request, "polls/detail.html", {"question": question})
+    return render(
+        request,
+        "polls/detail.html",
+        {
+            "question": question,
+            "comments": question.comments.select_related("owner").all(),
+        },
+    )
 
 def results(request, question_id):
-    response = "You're looking at the results of question %s."
-    return HttpResponse(response % question_id)
+    question = get_object_or_404(Question, pk=question_id)
+    choices = question.choice_set.all()
 
+    total_votes = sum(choice.votes for choice in choices)
+
+    return render(
+        request,
+        "polls/results.html",
+        {
+            "question": question,
+            "choices": choices,
+            "total_votes": total_votes,
+        },
+    )
 
 def vote(request, question_id):
     question = get_object_or_404(Question, pk=question_id)
@@ -82,3 +102,31 @@ def vote(request, question_id):
         return HttpResponseRedirect(
             reverse("polls:results", args=(question.id,))
         )
+
+@login_required
+def add_comment(request, question_id):
+    question = get_object_or_404(Question, pk=question_id)
+
+    if request.method == "POST":
+        form = CommentForm(request.POST)
+
+        if form.is_valid():
+            comment = form.save(commit=False)
+            comment.question = question
+            comment.owner = request.user
+            comment.save()
+
+            return HttpResponseRedirect(
+                reverse("polls:detail", args=(question.id,))
+            )
+    else:
+        form = CommentForm()
+
+    return render(
+        request,
+        "polls/add_comment.html",
+        {
+            "question": question,
+            "form": form,
+        },
+    )

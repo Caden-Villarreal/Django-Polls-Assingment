@@ -17,8 +17,19 @@ Including another URLconf
 
 from django.contrib import admin
 from django.urls import include, path
+from rest_framework import routers
+
+from mysite import views
+
+router = routers.DefaultRouter()
+router.register("users", views.UserViewSet)
+router.register("groups", views.GroupViewSet)
 
 urlpatterns = [
     path("polls/", include("polls.urls")),
     path("admin/", admin.site.urls),
+    path("accounts/", include("django.contrib.auth.urls")),
+    path("api/", include(router.urls)),
+    path("api-auth/", include("rest_framework.urls", namespace="rest_framework")),
+    path("snippets-api/", include("snippets.urls")),
 ]

@@ -10,3 +10,28 @@
 </fieldset>
 <input type="submit" value="Vote">
 </form>
+
+
+<hr>
+
+<h2>Comments</h2>
+
+{% for comment in comments %}
+    <p>{{ comment.comment_text }} — {{ comment.owner.username }}</p>
+{% empty %}
+    <p>No comments yet.</p>
+{% endfor %}
+
+{% if user.is_authenticated %}
+    <p>
+        <a href="{% url 'polls:add_comment' question.id %}">
+            Add a comment
+        </a>
+    </p>
+{% else %}
+    <p>
+        <a href="{% url 'login' %}?next={{ request.path }}">
+            Log in to add a comment
+        </a>
+    </p>
+{% endif %}

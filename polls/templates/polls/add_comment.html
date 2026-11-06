@@ -1,0 +1,28 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Add a Comment</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'polls/style.css' %}">
+</head>
+<body>
+    <h1>Add a Comment</h1>
+
+    <p>Poll: {{ question.question_text }}</p>
+
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">Submit comment</button>
+    </form>
+
+    <p>
+        <a href="{% url 'polls:detail' question.id %}">Back to poll</a>
+    </p>
+
+    <p>
+        <a href="{% url 'polls:index' %}">Return to Polls home</a>
+    </p>
+</body>
+</html>

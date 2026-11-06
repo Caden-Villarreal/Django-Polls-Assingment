@@ -1,5 +1,6 @@
 import datetime
 
+from django.conf import settings
 from django.db import models
 from django.utils import timezone
 
@@ -22,3 +23,19 @@ class Choice(models.Model):
 
     def __str__(self):
         return self.choice_text
+
+class Comment(models.Model):
+    question = models.ForeignKey(
+        Question,
+        on_delete=models.CASCADE,
+        related_name="comments"
+    )
+    owner = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="comments"
+    )
+    comment_text = models.TextField()
+
+    def __str__(self):
+        return self.comment_text
