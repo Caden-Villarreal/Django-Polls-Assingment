@@ -1,0 +1,19 @@
+
+{% load static %}
+<link rel="stylesheet" href="{% static 'polls/style.css' %}">
+
+<h1>Edit Comment</h1>
+
+<p>Question: {{ question.question_text }}</p>
+
+<form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">Save Changes</button>
+</form>
+
+<p>
+    <a href="{% url 'polls:detail' question.id %}">
+        Cancel and return to poll
+    </a>
+</p>

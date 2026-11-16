@@ -1,3 +1,4 @@
+
 from django.db.models import F
 from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404, render
@@ -5,8 +6,12 @@ from django.urls import reverse
 from django.utils import timezone
 from django.contrib.auth.decorators import login_required
 
-from .forms import CommentForm
-from .models import Choice, Question
+import json
+from urllib.request import Request, urlopen
+from urllib.error import URLError, HTTPError
+
+from .forms import CommentForm, UploadedFileForm
+from .models import Choice, Comment, Question, UploadedFile
 
 
 def index(request):
@@ -65,6 +70,7 @@ def detail(request, question_id):
         },
     )
 
+
 def results(request, question_id):
     question = get_object_or_404(Question, pk=question_id)
     choices = question.choice_set.all()
@@ -80,6 +86,7 @@ def results(request, question_id):
             "total_votes": total_votes,
         },
     )
+
 
 def vote(request, question_id):
     question = get_object_or_404(Question, pk=question_id)
@@ -102,6 +109,7 @@ def vote(request, question_id):
         return HttpResponseRedirect(
             reverse("polls:results", args=(question.id,))
         )
+
 
 @login_required
 def add_comment(request, question_id):
@@ -128,5 +136,138 @@ def add_comment(request, question_id):
         {
             "question": question,
             "form": form,
+        },
+    )
+
+
+@login_required
+def edit_comment(request, comment_id):
+    comment = get_object_or_404(
+        Comment,
+        pk=comment_id,
+        owner=request.user,
+    )
+
+    if request.method == "POST":
+        form = CommentForm(request.POST, instance=comment)
+
+        if form.is_valid():
+            form.save()
+
+            return HttpResponseRedirect(
+                reverse("polls:detail", args=(comment.question.id,))
+            )
+    else:
+        form = CommentForm(instance=comment)
+
+    return render(
+        request,
+        "polls/edit_comment.html",
+        {
+            "comment": comment,
+            "question": comment.question,
+            "form": form,
+        },
+    )
+
+
+@login_required
+def delete_comment(request, comment_id):
+    comment = get_object_or_404(
+        Comment,
+        pk=comment_id,
+        owner=request.user,
+    )
+
+    question_id = comment.question.id
+
+    if request.method == "POST":
+        comment.delete()
+
+        return HttpResponseRedirect(
+            reverse("polls:detail", args=(question_id,))
+        )
+
+    return render(
+        request,
+        "polls/delete_comment.html",
+        {
+            "comment": comment,
+            "question": comment.question,
+        },
+    )
+
+
+@login_required
+def upload_file(request):
+    if request.method == "POST":
+        form = UploadedFileForm(request.POST, request.FILES)
+
+        if form.is_valid():
+            uploaded_file = form.save(commit=False)
+            uploaded_file.uploader = request.user
+            uploaded_file.save()
+
+            return HttpResponseRedirect(
+                reverse("polls:upload_file")
+            )
+    else:
+        form = UploadedFileForm()
+
+    user_files = UploadedFile.objects.filter(
+        uploader=request.user
+    ).order_by("-uploaded_at")
+
+    return render(
+        request,
+        "polls/upload.html",
+        {
+            "form": form,
+            "user_files": user_files,
+        },
+    )
+
+
+def weather(request):
+    url = "https://api.weather.gov/gridpoints/OAX/83,60/forecast"
+
+    weather_data = None
+    error_message = None
+
+    api_request = Request(
+        url,
+        headers={
+            "User-Agent": "DjangoPollsExercise8 (student project)",
+            "Accept": "application/geo+json",
+        },
+    )
+
+    try:
+        with urlopen(api_request, timeout=15) as response:
+            data = json.loads(response.read().decode("utf-8"))
+
+        periods = data["properties"]["periods"]
+        weather_data = periods[:5]
+
+    except (
+        URLError,
+        HTTPError,
+        TimeoutError,
+        OSError,
+        ValueError,
+        KeyError,
+        TypeError,
+    ):
+        error_message = (
+            "Weather information is currently unavailable. "
+            "Please try again later."
+        )
+
+    return render(
+        request,
+        "polls/weather.html",
+        {
+            "weather_data": weather_data,
+            "error_message": error_message,
         },
     )

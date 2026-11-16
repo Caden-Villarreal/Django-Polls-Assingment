@@ -1,3 +1,4 @@
+
 import datetime
 
 from django.conf import settings
@@ -11,6 +12,7 @@ class Question(models.Model):
 
     def __str__(self):
         return self.question_text
+
     def was_published_recently(self):
         now = timezone.now()
         return now - datetime.timedelta(days=1) <= self.pub_date <= now
@@ -24,18 +26,32 @@ class Choice(models.Model):
     def __str__(self):
         return self.choice_text
 
+
 class Comment(models.Model):
     question = models.ForeignKey(
         Question,
         on_delete=models.CASCADE,
-        related_name="comments"
+        related_name="comments",
     )
     owner = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
-        related_name="comments"
+        related_name="comments",
     )
     comment_text = models.TextField()
 
     def __str__(self):
         return self.comment_text
+
+
+class UploadedFile(models.Model):
+    uploader = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="uploaded_files",
+    )
+    file = models.FileField(upload_to="user_uploads/")
+    uploaded_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.file.name

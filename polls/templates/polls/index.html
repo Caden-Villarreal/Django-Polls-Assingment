@@ -1,34 +1,63 @@
+
 {% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Polls</title>
+    <link rel="stylesheet" href="{% static 'polls/style.css' %}">
+</head>
 
-<link rel="stylesheet" href="{% static 'polls/style.css' %}">
+<body style="color: black; font-family: Arial, sans-serif;">
 
-<p>{{ welcome_message }}</p>
-<p>You have visited the Polls page {{ visit_count }} times.</p>
+    <p>{{ welcome_message }}</p>
 
-{% if last_poll %}
-    <p>Last poll viewed: {{ last_poll.question_text }}</p>
-{% endif %}
+    <p>
+        <a href="{% url 'polls:weather' %}" style="color: black;">
+            View Current Weather
+        </a>
+    </p>
 
-{% if latest_question_list %}
-    <ul>
-    {% for question in latest_question_list %}
-        <li><a href="{% url 'polls:detail' question.id %}">{{ question.question_text }}</a></li>
-    {% endfor %}
-    </ul>
-{% else %}
-    <p>No polls are available.</p>
-{% endif %}
+    <p>You have visited the Polls page {{ visit_count }} times.</p>
 
+    {% if last_poll %}
+        <p>Last poll viewed: {{ last_poll.question_text }}</p>
+    {% endif %}
 
-{% if user.is_authenticated %}
-    <p>Logged in as: {{ user.username }}</p>
-    <form action="{% url 'logout' %}" method="post">
-        {% csrf_token %}
-        <button type="submit">Log out</button>
-    </form>
-{% else %}
-    <p>You are not logged in.</p>
-    <a href="{% url 'login' %}?next={{ request.path }}">Log in</a>
-{% endif %}
+    {% if latest_question_list %}
+        <ul>
+        {% for question in latest_question_list %}
+            <li>
+                <a href="{% url 'polls:detail' question.id %}"
+                   style="color: #008000;">
+                    {{ question.question_text }}
+                </a>
+            </li>
+        {% endfor %}
+        </ul>
+    {% else %}
+        <p>No polls are available.</p>
+    {% endif %}
 
+    {% if user.is_authenticated %}
+        <p>Logged in as: {{ user.username }}</p>
 
+        <form action="{% url 'logout' %}" method="post">
+            {% csrf_token %}
+            <button type="submit">Log out</button>
+        </form>
+    {% else %}
+        <p>You are not logged in.</p>
+        <a href="{% url 'login' %}" style="color: black;">
+            Log in
+        </a>
+    {% endif %}
+
+    <p>
+        <a href="{% url 'polls:upload_file' %}" style="color: black;">
+            Upload a File
+        </a>
+    </p>
+
+</body>
+</html>

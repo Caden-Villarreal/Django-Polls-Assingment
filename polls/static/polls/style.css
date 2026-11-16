@@ -1,8 +1,40 @@
-li a {
-    color: green;
-}
 
 body {
     background: white url("images/background.png") no-repeat;
     background-size: cover;
+    color: #39FF14;
+    font-family: "Segoe UI", Arial, sans-serif;
+    font-size: 16px;
+    line-height: 1.6;
+}
+
+h1, h2, h3 {
+    color: #39FF14;
+    font-family: "Segoe UI", Arial, sans-serif;
+    font-weight: 600;
+    line-height: 1.3;
+}
+
+h1 {
+    font-size: 28px;
+}
+
+h2 {
+    font-size: 23px;
+}
+
+h3 {
+    font-size: 19px;
+}
+
+p, li, strong {
+    color: #39FF14;
+}
+
+a, li a {
+    color: #39FF14;
+}
+
+a:hover {
+    color: #00FF00;
 }

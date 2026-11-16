@@ -1,0 +1,56 @@
+
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Upload Files</title>
+    <link rel="stylesheet" href="{% static 'polls/style.css' %}">
+</head>
+
+<body>
+    <div style="color: #39FF14;">
+        <h1>Upload a File</h1>
+
+        <p>
+            <a href="{% url 'polls:index' %}">Back to Polls</a>
+        </p>
+
+        <p>Allowed file types: PDF, PNG, JPG, JPEG, and TXT.</p>
+        <p>Maximum file size: 5 MB.</p>
+
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+
+            {% if form.errors %}
+                <div style="color: red; border: 1px solid red; padding: 10px;">
+                    <h3>Upload Failed</h3>
+                    <p>Please correct the following issue:</p>
+                    {{ form.errors }}
+                </div>
+            {% endif %}
+
+            {{ form.as_p }}
+
+            <button type="submit">Upload File</button>
+        </form>
+
+        <hr>
+
+        <h2>Your Uploaded Files</h2>
+
+        {% if user_files %}
+            {% for uploaded_file in user_files %}
+                <p>
+                    <a href="{{ uploaded_file.file.url }}" target="_blank">
+                        {{ uploaded_file.file.name }}
+                    </a>
+                    (Uploaded {{ uploaded_file.uploaded_at }})
+                </p>
+            {% endfor %}
+        {% else %}
+            <p>You have not uploaded any files yet.</p>
+        {% endif %}
+    </div>
+</body>
+</html>
